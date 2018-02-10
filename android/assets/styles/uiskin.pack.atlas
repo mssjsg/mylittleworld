@@ -1,0 +1,31 @@
+
+uiskin.pack.png
+size: 512,128
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+button1
+  rotate: false
+  xy: 0, 0
+  size: 32, 32
+  split: 9, 9, 9, 9
+  pad: 7, 7, 7, 7
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+button1_down
+  rotate: false
+  xy: 32, 0
+  size: 32, 32
+  split: 9, 9, 9, 9
+  pad: 7, 7, 7, 7
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+perfect_dos_vga_437_win
+  rotate: false
+  xy: 0, 32
+  size: 512, 86
+  orig: 512, 86
+  offset: 0, 0
+  index: -1

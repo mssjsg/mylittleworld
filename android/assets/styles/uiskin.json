@@ -1,0 +1,25 @@
+{
+	com.badlogic.gdx.graphics.g2d.BitmapFont: { default-font: { file: perfect_dos_vga_437_win.fnt } },
+	com.badlogic.gdx.graphics.Color: {
+	    textColor: { hex: 000000ff },
+		blueColor: { hex: 42aaf4ff },
+		redColor: { hex: ff0000ff }
+	},
+	com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
+		default: {font: default-font, fontColor: blueColor},
+		gameOver: {font: default-font, fontColor: redColor}
+	},
+	com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
+		default: {
+			down: button1_down,
+			up: button1,
+			font: default-font,
+			fontColor: textColor
+		}
+	},
+	com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
+		default: {
+			titleFont: default-font
+		}
+	}
+}
