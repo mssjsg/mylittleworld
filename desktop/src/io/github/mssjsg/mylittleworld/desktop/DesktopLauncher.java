@@ -2,8 +2,7 @@ package io.github.mssjsg.mylittleworld.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import io.github.mssjsg.mylittleworld.MainGame;
-import io.github.mssjsg.pong.ApplicationController;
+import io.github.mssjsg.mylittleworld.ApplicationController;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
