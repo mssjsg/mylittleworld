@@ -1,6 +1,5 @@
 package io.github.mssjsg.mylittleworld.game.system;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
@@ -8,8 +7,9 @@ import com.badlogic.gdx.utils.Array;
 import io.github.mssjsg.mylittleworld.game.Entity;
 import io.github.mssjsg.mylittleworld.game.component.DisplayBody;
 import io.github.mssjsg.mylittleworld.game.component.Position;
-import io.github.mssjsg.mylittleworld.game.shape.Circle;
-import io.github.mssjsg.mylittleworld.game.shape.Rectangle;
+import io.github.mssjsg.mylittleworld.game.shape.Character;
+import io.github.mssjsg.mylittleworld.game.shape.Ball;
+import io.github.mssjsg.mylittleworld.game.shape.Block;
 
 /**
  * Created by sing on 1/2/17.
@@ -35,10 +35,12 @@ public class RenderShapeSystem extends AbstractEntitySystem {
             if (displayBody.color != null) {
                 mShapeRenderer.setColor(displayBody.color);
 
-                if (displayBody.shape instanceof Circle) {
+                if (displayBody.shape instanceof Ball) {
                     renderClircle(position, displayBody);
-                } else if (displayBody.shape instanceof Rectangle) {
+                } else if (displayBody.shape instanceof Block) {
                     renderRectangle(position, displayBody);
+                } else if (displayBody.shape instanceof Character) {
+                    renderCharacter(position, displayBody);
                 }
             }
         }
@@ -47,18 +49,27 @@ public class RenderShapeSystem extends AbstractEntitySystem {
 
     private void renderClircle(Position position, DisplayBody displayBody) {
 
-        float radius = ((Circle)displayBody.shape).radius;
+        float radius = ((Ball)displayBody.shape).radius;
 
         mShapeRenderer.circle(position.x - displayBody.centerX, position.y - displayBody.centerY,
                 radius, 100);
     }
 
     private void renderRectangle(Position position, DisplayBody displayBody) {
-        Rectangle rectangle = (Rectangle)displayBody.shape;
+        Block block = (Block)displayBody.shape;
+
+        float x = position.x - block.width / 2 - displayBody.centerX;
+        float y = position.y - block.height / 2 - displayBody.centerY;
+
+        mShapeRenderer.rect(x, y, ((Block)displayBody.shape).width, block.height);
+    }
+
+    private void renderCharacter(Position position, DisplayBody displayBody) {
+        Character rectangle = (Character)displayBody.shape;
 
         float x = position.x - rectangle.width / 2 - displayBody.centerX;
         float y = position.y - rectangle.height / 2 - displayBody.centerY;
 
-        mShapeRenderer.rect(x, y, ((Rectangle)displayBody.shape).width, rectangle.height);
+        mShapeRenderer.rect(x, y, ((Character)displayBody.shape).width, rectangle.height);
     }
 }

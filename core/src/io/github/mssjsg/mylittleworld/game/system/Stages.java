@@ -8,12 +8,15 @@ import io.github.mssjsg.mylittleworld.game.StageInfo;
 
 public class Stages {
 
-    public static final int TILE_SIZE = 40;
+    public static final int TILE_SIZE = 32;
 
     public static StageInfo createStage(int stageId) {
         StageInfo stageInfo = new StageInfo();
-        stageInfo.stageHeight = 10 * TILE_SIZE;
-        stageInfo.stageWidth = 10 * TILE_SIZE;
+
+        stageInfo.map = "map/stage1.tmx";
+
+        stageInfo.stageHeight = 16 * TILE_SIZE;
+        stageInfo.stageWidth = 16 * TILE_SIZE;
         stageInfo.mainCharacterPosition.x = 6 * TILE_SIZE;
         stageInfo.mainCharacterPosition.y = 6 * TILE_SIZE;
 

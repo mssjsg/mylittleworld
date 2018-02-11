@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -17,12 +19,13 @@ import io.github.mssjsg.mylittleworld.game.component.Position;
 import io.github.mssjsg.mylittleworld.game.system.Box2dSystem;
 import io.github.mssjsg.mylittleworld.game.system.RenderShapeSystem;
 import io.github.mssjsg.mylittleworld.game.system.Stages;
+import io.github.mssjsg.mylittleworld.game.system.TiledMapSystem;
 
 /**
  * Created by sing on 1/1/17.
  */
 
-public class GameController implements Box2dSystem.OnRacketHitBallListener {
+public class GameController implements Box2dSystem.OnRacketHitBallListener, TiledMapSystem.OnLoadMapListener {
 
     private static final int CAMERRA_WIDTH = 400;
 
@@ -44,6 +47,7 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener {
 
     private RenderShapeSystem mRenderShapeSystem; //render shapes
     private Box2dSystem mBox2dSystem; //physics
+    private TiledMapSystem mTiledMapSystem; //map
 
     private GameEntityFactory mGameEntityFactory;
 
@@ -68,8 +72,6 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener {
         mSpriteBatch = new SpriteBatch();
         mShapeRenderer = new ShapeRenderer();
 
-        mStageInfo = Stages.createStage(0);
-
         mLogo = new Texture("badlogic.jpg");
 
         mCamera = new OrthographicCamera();
@@ -79,11 +81,18 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener {
 
         //init systems
         mRenderShapeSystem = new RenderShapeSystem(mCamera, mShapeRenderer);
+        mTiledMapSystem = new TiledMapSystem();
+        mTiledMapSystem.setCamera(mCamera);
+        mTiledMapSystem.setOnLoadMapListener(this);
         mBox2dSystem = new Box2dSystem(mBoxCamera, this);
 
         mKeysPressing = 0;
 
         mGameState.state = States.PLAYING;
+
+        //init stage
+        mStageInfo = Stages.createStage(0);
+        mTiledMapSystem.load(mStageInfo.map);
         startGame(mStageInfo);
     }
 
@@ -93,7 +102,6 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener {
 
     private void setupStage(StageInfo stageInfo) {
         mModel.stage = mGameEntityFactory.createStage(stageInfo.stageWidth, stageInfo.stageHeight);
-        mRenderShapeSystem.addEntity(mModel.stage);
 
         Vector2 mainPosition = stageInfo.mainCharacterPosition;
         mModel.main = mGameEntityFactory.createMain(mainPosition.x, mainPosition.y);
@@ -116,22 +124,22 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener {
 
         //add top boundary
         Entity boundaryTop = mGameEntityFactory.createBlock(Tags.TAG_BLOCK1, mStageInfo.stageWidth,
-                Stages.TILE_SIZE, mStageInfo.stageWidth / 2f, mStageInfo.stageHeight, null);
+                0, mStageInfo.stageWidth / 2f, mStageInfo.stageHeight, null);
         addBlock(boundaryTop);
 
         //add left boundary
-        Entity boundaryLeft = mGameEntityFactory.createBlock(Tags.TAG_BLOCK1, Stages.TILE_SIZE,
-                mStageInfo.stageHeight, -Stages.TILE_SIZE / 2f, 0, null);
+        Entity boundaryLeft = mGameEntityFactory.createBlock(Tags.TAG_BLOCK1, 0,
+                mStageInfo.stageHeight, 0, 0, null);
         addBlock(boundaryLeft);
 
         //add right boundary
-        Entity boundaryRight = mGameEntityFactory.createBlock(Tags.TAG_BLOCK1, Stages.TILE_SIZE,
-                mStageInfo.stageHeight, mStageInfo.stageWidth + Stages.TILE_SIZE / 2f, 0, null);
+        Entity boundaryRight = mGameEntityFactory.createBlock(Tags.TAG_BLOCK1, 0,
+                mStageInfo.stageHeight, mStageInfo.stageWidth, 0, null);
         addBlock(boundaryRight);
 
         //add bottom boundary
         Entity boundaryBottom = mGameEntityFactory.createBlock(Tags.TAG_BLOCK1, mStageInfo.stageWidth,
-                Stages.TILE_SIZE, mStageInfo.stageWidth / 2f, -Stages.TILE_SIZE, null);
+                0, mStageInfo.stageWidth / 2f, 0, null);
         addBlock(boundaryBottom);
     }
 
@@ -241,6 +249,7 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener {
 
         updateState(velocityX, velocityY);
 
+        mTiledMapSystem.update(delta);
         mRenderShapeSystem.update(delta);
         mBox2dSystem.update(delta);
 
@@ -307,6 +316,25 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener {
         setEntityPosition(mModel.main, centerX, centerY);
 
         resumeGame();
+    }
+
+    @Override
+    public void onLoadMap(TiledMap tiledMap) {
+        TiledMapTileLayer tiledMapTileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+        for (int x = 0; x < tiledMapTileLayer.getWidth(); x++) {
+            for (int y = 0; y < tiledMapTileLayer.getHeight(); y++) {
+                TiledMapTileLayer.Cell cell = tiledMapTileLayer.getCell(x, y);
+                if (cell.getTile().getProperties().get("type").equals("1")) {
+                    Vector2 position = new Vector2();
+                    position.x = (0.5f + x) * Stages.TILE_SIZE;
+                    position.y = y * Stages.TILE_SIZE;
+                    Entity block = mGameEntityFactory.createBlock(Tags.TAG_BLOCK1, Stages.TILE_SIZE,
+                            Stages.TILE_SIZE, position.x, position.y, Color.PURPLE);
+                    mModel.blocks.add(block);
+                    addBlock(block);
+                }
+            }
+        }
     }
 
     public interface GameView {

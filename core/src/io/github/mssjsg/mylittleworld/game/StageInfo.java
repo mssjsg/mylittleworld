@@ -8,8 +8,9 @@ import com.badlogic.gdx.utils.Array;
  */
 
 public class StageInfo {
-    public int stageWidth = 600;
-    public int stageHeight = 600;
+    public int stageWidth;
+    public int stageHeight;
+    public String map;
 
     public final Vector2 mainCharacterPosition = new Vector2();
 

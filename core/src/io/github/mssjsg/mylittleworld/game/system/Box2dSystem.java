@@ -5,25 +5,20 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 
 import io.github.mssjsg.mylittleworld.game.Entity;
-import io.github.mssjsg.mylittleworld.game.Tags;
 import io.github.mssjsg.mylittleworld.game.component.HitBody;
 import io.github.mssjsg.mylittleworld.game.component.Position;
 import io.github.mssjsg.mylittleworld.game.shape.BodyShape;
-import io.github.mssjsg.mylittleworld.game.shape.Circle;
-import io.github.mssjsg.mylittleworld.game.shape.Rectangle;
 
 /**
  * Created by sing on 1/7/17.
@@ -59,7 +54,7 @@ public class Box2dSystem extends BaseSystem {
     @Override
     public void update(float delta) {
         mDebugRenderer.render(mWorld, mCamera.combined);
-        mWorld.step(delta, 6, 2);
+        mWorld.step(delta, 5, 2);
 
         for (int i = 0; i < mBodyEntityMap.size; i++) {
             Body body = mBodyEntityMap.getKeyAt(i);
@@ -95,23 +90,7 @@ public class Box2dSystem extends BaseSystem {
 
         Body body = mWorld.createBody(bodyDef);
 
-        Shape shape;
-
-        if (bodyShape instanceof Rectangle) {
-            PolygonShape polygonShape = new PolygonShape();
-            shape = polygonShape;
-            Rectangle rectangle = (Rectangle)bodyShape;
-            polygonShape.setAsBox(rectangle.width / 2 * PX_TO_BOX,
-                    rectangle.height / 2 * PX_TO_BOX);
-        } else if (bodyShape instanceof Circle) {
-            Circle circle = (Circle)bodyShape;
-            CircleShape circleShape = new CircleShape();
-            shape = circleShape;
-
-            circleShape.setRadius(circle.radius * PX_TO_BOX);
-        } else {
-            return;
-        }
+        Shape shape = bodyShape.createBox2dShape();
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;

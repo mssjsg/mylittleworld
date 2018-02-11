@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.Color;
 import io.github.mssjsg.mylittleworld.game.component.DisplayBody;
 import io.github.mssjsg.mylittleworld.game.component.HitBody;
 import io.github.mssjsg.mylittleworld.game.component.Position;
-import io.github.mssjsg.mylittleworld.game.shape.Circle;
-import io.github.mssjsg.mylittleworld.game.shape.Rectangle;
+import io.github.mssjsg.mylittleworld.game.shape.Character;
+import io.github.mssjsg.mylittleworld.game.shape.Block;
 
 /**
  * Created by sing on 1/7/17.
@@ -16,12 +16,12 @@ public class GameEntityFactory {
 
     public Entity createStage(float width, float height) {
         //stage
-        Rectangle rectangle = new Rectangle();
-        rectangle.width = width;
-        rectangle.height = height;
+        Block block = new Block();
+        block.width = width;
+        block.height = height;
 
         DisplayBody displayBody = new DisplayBody();
-        displayBody.shape = rectangle;
+        displayBody.shape = block;
         displayBody.color = Color.CLEAR;
 
         return new Entity()
@@ -32,12 +32,12 @@ public class GameEntityFactory {
 
     public Entity createCharacter(int tag, float width, float height, float x, float y, Color color) {
         //create ball
-        Rectangle rectangle = new Rectangle();
-        rectangle.width = width;
-        rectangle.height = height;
+        Character character = new Character();
+        character.width = width;
+        character.height = height;
 
         DisplayBody displayBody = new DisplayBody();
-        displayBody.shape = rectangle;
+        displayBody.shape = character;
         displayBody.centerX = 0;
         displayBody.centerY = -height / 2f;
         displayBody.color = color;
@@ -51,12 +51,12 @@ public class GameEntityFactory {
 
     public Entity createBlock(int tag, float width, float height, float x, float y, Color color) {
         //create ball
-        Rectangle rectangle = new Rectangle();
-        rectangle.width = width;
-        rectangle.height = height;
+        Block block = new Block();
+        block.width = width;
+        block.height = height;
 
         DisplayBody displayBody = new DisplayBody();
-        displayBody.shape = rectangle;
+        displayBody.shape = block;
         displayBody.centerX = 0;
         displayBody.centerY = -height / 2f;
         displayBody.color = color;
