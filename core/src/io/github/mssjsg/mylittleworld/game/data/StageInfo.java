@@ -1,7 +1,10 @@
-package io.github.mssjsg.mylittleworld.game;
+package io.github.mssjsg.mylittleworld.game.data;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by sing on 1/2/17.
@@ -10,12 +13,13 @@ import com.badlogic.gdx.utils.Array;
 public class StageInfo {
     public int stageWidth;
     public int stageHeight;
-    public String map;
+    public String mapPath;
+    public List<TextureAtlasInfo> textureAtlasInfos = new ArrayList<TextureAtlasInfo>();
 
     public final Vector2 mainCharacterPosition = new Vector2();
 
-    public final Array<EnemyInfo> enemies = new Array<EnemyInfo>();
-    public final Array<BlockInfo> blocks = new Array<BlockInfo>();
+    public final List<EnemyInfo> enemies = new ArrayList<EnemyInfo>();
+    public final List<BlockInfo> blocks = new ArrayList<BlockInfo>();
 
     public static class EnemyInfo {
         public int type;

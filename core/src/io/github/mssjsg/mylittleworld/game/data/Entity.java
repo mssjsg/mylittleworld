@@ -1,7 +1,8 @@
-package io.github.mssjsg.mylittleworld.game;
+package io.github.mssjsg.mylittleworld.game.data;
 
 import com.badlogic.gdx.utils.ArrayMap;
 
+import io.github.mssjsg.mylittleworld.game.Tags;
 import io.github.mssjsg.mylittleworld.game.component.Component;
 
 /**

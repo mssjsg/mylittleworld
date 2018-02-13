@@ -2,7 +2,7 @@ package io.github.mssjsg.mylittleworld.game.system;
 
 import com.badlogic.gdx.utils.Array;
 
-import io.github.mssjsg.mylittleworld.game.Entity;
+import io.github.mssjsg.mylittleworld.game.data.Entity;
 
 /**
  * Created by sing on 1/2/17.

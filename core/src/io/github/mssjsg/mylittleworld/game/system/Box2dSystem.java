@@ -15,7 +15,7 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 
-import io.github.mssjsg.mylittleworld.game.Entity;
+import io.github.mssjsg.mylittleworld.game.data.Entity;
 import io.github.mssjsg.mylittleworld.game.component.HitBody;
 import io.github.mssjsg.mylittleworld.game.component.Position;
 import io.github.mssjsg.mylittleworld.game.shape.BodyShape;
@@ -84,7 +84,6 @@ public class Box2dSystem extends BaseSystem {
         bodyDef.type = dynamic ? BodyDef.BodyType.DynamicBody : BodyDef.BodyType.KinematicBody;
 
         bodyDef.position.set((position.x - hitBody.centerX) * PX_TO_BOX, (position.y - hitBody.centerY) * PX_TO_BOX);
-
         bodyDef.linearDamping = 0.0f;
         bodyDef.angularDamping = 0.0f;
 

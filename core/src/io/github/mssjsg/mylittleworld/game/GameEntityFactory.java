@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import io.github.mssjsg.mylittleworld.game.component.DisplayBody;
 import io.github.mssjsg.mylittleworld.game.component.HitBody;
 import io.github.mssjsg.mylittleworld.game.component.Position;
+import io.github.mssjsg.mylittleworld.game.data.Entity;
 import io.github.mssjsg.mylittleworld.game.shape.Character;
 import io.github.mssjsg.mylittleworld.game.shape.Block;
 

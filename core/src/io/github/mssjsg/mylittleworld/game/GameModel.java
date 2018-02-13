@@ -2,6 +2,8 @@ package io.github.mssjsg.mylittleworld.game;
 
 import com.badlogic.gdx.utils.Array;
 
+import io.github.mssjsg.mylittleworld.game.data.Entity;
+
 /**
  * Created by Sing on 10/2/2018.
  */

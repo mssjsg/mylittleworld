@@ -9,15 +9,17 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 
 import java.util.Random;
 
 import io.github.mssjsg.mylittleworld.game.component.Position;
+import io.github.mssjsg.mylittleworld.game.data.Entity;
+import io.github.mssjsg.mylittleworld.game.data.StageInfo;
 import io.github.mssjsg.mylittleworld.game.system.Box2dSystem;
 import io.github.mssjsg.mylittleworld.game.system.RenderShapeSystem;
+import io.github.mssjsg.mylittleworld.game.system.ResourcesSystem;
 import io.github.mssjsg.mylittleworld.game.system.Stages;
 import io.github.mssjsg.mylittleworld.game.system.TiledMapSystem;
 
@@ -25,7 +27,7 @@ import io.github.mssjsg.mylittleworld.game.system.TiledMapSystem;
  * Created by sing on 1/1/17.
  */
 
-public class GameController implements Box2dSystem.OnRacketHitBallListener, TiledMapSystem.OnLoadMapListener {
+public class GameController implements Box2dSystem.OnRacketHitBallListener, ResourcesSystem.ResourcesListener {
 
     private static final int CAMERRA_WIDTH = 400;
 
@@ -48,6 +50,7 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Tile
     private RenderShapeSystem mRenderShapeSystem; //render shapes
     private Box2dSystem mBox2dSystem; //physics
     private TiledMapSystem mTiledMapSystem; //map
+    private ResourcesSystem mResourcesSystem;
 
     private GameEntityFactory mGameEntityFactory;
 
@@ -83,8 +86,9 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Tile
         mRenderShapeSystem = new RenderShapeSystem(mCamera, mShapeRenderer);
         mTiledMapSystem = new TiledMapSystem();
         mTiledMapSystem.setCamera(mCamera);
-        mTiledMapSystem.setOnLoadMapListener(this);
         mBox2dSystem = new Box2dSystem(mBoxCamera, this);
+        mResourcesSystem = new ResourcesSystem();
+        mResourcesSystem.addResourcesListener(this);
 
         mKeysPressing = 0;
 
@@ -92,12 +96,11 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Tile
 
         //init stage
         mStageInfo = Stages.createStage(0);
-        mTiledMapSystem.load(mStageInfo.map);
         startGame(mStageInfo);
     }
 
     private void startGame(StageInfo stageInfo) {
-        setupStage(stageInfo);
+        mResourcesSystem.loadStage(stageInfo);
     }
 
     private void setupStage(StageInfo stageInfo) {
@@ -226,34 +229,36 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Tile
 //        mSpriteBatch.draw(mLogo, (mStageInfo.stageWidth - mLogo.getWidth()) / 2, (mStageInfo.stageHeight - mLogo.getHeight()) / 2);
 //        mSpriteBatch.end();
 
-        float velocityX = 0;
-        float velocityY = 0;
+        if (mResourcesSystem.getState() == ResourcesSystem.LOADING) {
+            mResourcesSystem.update(delta);
+        } if (mResourcesSystem.getState() == ResourcesSystem.LOADED) {
+            float velocityX = 0;
+            float velocityY = 0;
 
-        mKeysPressed = 0;
+            mKeysPressed = 0;
 
-        if (isPressingKey(GameKeys.KEY_RIGHT)) {
-            velocityX += mSpeed;
+            if (isPressingKey(GameKeys.KEY_RIGHT)) {
+                velocityX += mSpeed;
+            }
+
+            if (isPressingKey(GameKeys.KEY_LEFT)) {
+                velocityX -= mSpeed;
+            }
+
+            if (isPressingKey(GameKeys.KEY_UP)) {
+                velocityY += mSpeed;
+            }
+
+            if (isPressingKey(GameKeys.KEY_DOWN)) {
+                velocityY -= mSpeed;
+            }
+
+            updateState(velocityX, velocityY);
+            mTiledMapSystem.update(delta);
+            mRenderShapeSystem.update(delta);
+            mBox2dSystem.update(delta);
+            updateCameraPosition();
         }
-
-        if (isPressingKey(GameKeys.KEY_LEFT)) {
-            velocityX -= mSpeed;
-        }
-
-        if (isPressingKey(GameKeys.KEY_UP)) {
-            velocityY += mSpeed;
-        }
-
-        if (isPressingKey(GameKeys.KEY_DOWN)) {
-            velocityY -= mSpeed;
-        }
-
-        updateState(velocityX, velocityY);
-
-        mTiledMapSystem.update(delta);
-        mRenderShapeSystem.update(delta);
-        mBox2dSystem.update(delta);
-
-        updateCameraPosition();
     }
 
     private void stepTime(float deltaTime) {
@@ -319,8 +324,9 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Tile
     }
 
     @Override
-    public void onLoadMap(TiledMap tiledMap) {
-        TiledMapTileLayer tiledMapTileLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+    public void onResourcesLoaded() {
+        mTiledMapSystem.setMap(mResourcesSystem.getStageMap());
+        TiledMapTileLayer tiledMapTileLayer = (TiledMapTileLayer) mResourcesSystem.getStageMap().getLayers().get(0);
         for (int x = 0; x < tiledMapTileLayer.getWidth(); x++) {
             for (int y = 0; y < tiledMapTileLayer.getHeight(); y++) {
                 TiledMapTileLayer.Cell cell = tiledMapTileLayer.getCell(x, y);
@@ -335,6 +341,8 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Tile
                 }
             }
         }
+
+        setupStage(mStageInfo);
     }
 
     public interface GameView {
