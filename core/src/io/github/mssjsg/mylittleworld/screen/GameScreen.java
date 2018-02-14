@@ -64,7 +64,7 @@ public class GameScreen extends Screen implements GameController.GameView {
     public void resize(int width, int height) {
         super.resize(width, height);
         mGameController.resize(width, height);
-        mStage.getViewport().update(UI_WIDTH, (int)((float)height / (float) width * UI_WIDTH), true);
+        mStage.getViewport().update(width, height, true);
     }
 
     @Override

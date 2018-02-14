@@ -13,4 +13,10 @@ public class AndroidLauncher extends AndroidApplication {
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		initialize(new ApplicationController(), config);
 	}
+
+	@Override
+	public void onBackPressed() {
+		//TODO handle back press
+		super.onBackPressed();
+	}
 }

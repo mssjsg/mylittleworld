@@ -196,7 +196,22 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
     }
 
     public void render(float delta) {
-        stepTime(delta);
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        //        mSpriteBatch.setProjectionMatrix(mCamera.combined);
+//        mSpriteBatch.begin();
+//        mSpriteBatch.draw(mLogo, (mStageInfo.stageWidth - mLogo.getWidth()) / 2, (mStageInfo.stageHeight - mLogo.getHeight()) / 2);
+//        mSpriteBatch.end();
+
+
+        if (mResourcesSystem.getState() == ResourcesSystem.LOADING) {
+            mResourcesSystem.update(delta);
+        } else if (mResourcesSystem.getState() == ResourcesSystem.LOADED) {
+            stepTime(delta);
+            mTiledMapSystem.update(delta);
+            mRenderShapeSystem.update(delta);
+        }
     }
 
     private void updateState(float velocityX, float velocityY) {
@@ -221,17 +236,6 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
     }
 
     public void update(float delta) {
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-//        mSpriteBatch.setProjectionMatrix(mCamera.combined);
-//        mSpriteBatch.begin();
-//        mSpriteBatch.draw(mLogo, (mStageInfo.stageWidth - mLogo.getWidth()) / 2, (mStageInfo.stageHeight - mLogo.getHeight()) / 2);
-//        mSpriteBatch.end();
-
-        if (mResourcesSystem.getState() == ResourcesSystem.LOADING) {
-            mResourcesSystem.update(delta);
-        } if (mResourcesSystem.getState() == ResourcesSystem.LOADED) {
             float velocityX = 0;
             float velocityY = 0;
 
@@ -254,11 +258,8 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
             }
 
             updateState(velocityX, velocityY);
-            mTiledMapSystem.update(delta);
-            mRenderShapeSystem.update(delta);
             mBox2dSystem.update(delta);
             updateCameraPosition();
-        }
     }
 
     private void stepTime(float deltaTime) {
