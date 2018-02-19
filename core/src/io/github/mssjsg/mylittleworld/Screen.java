@@ -1,4 +1,4 @@
-package io.github.mssjsg.mylittleworld.screen;
+package io.github.mssjsg.mylittleworld;
 
 import com.badlogic.gdx.InputProcessor;
 
@@ -38,5 +38,9 @@ public abstract class Screen {
 
     protected void setScreen(Screen screen) {
         mScreenManager.setScreen(screen);
+    }
+
+    public boolean goBack() {
+        return false;
     }
 }

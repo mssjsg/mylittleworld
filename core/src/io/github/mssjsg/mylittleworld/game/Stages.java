@@ -1,4 +1,4 @@
-package io.github.mssjsg.mylittleworld.game.system;
+package io.github.mssjsg.mylittleworld.game;
 
 import io.github.mssjsg.mylittleworld.game.data.StageInfo;
 import io.github.mssjsg.mylittleworld.game.data.TextureAtlasInfo;

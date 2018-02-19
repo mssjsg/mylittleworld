@@ -1,4 +1,4 @@
-package io.github.mssjsg.mylittleworld.screen;
+package io.github.mssjsg.mylittleworld.main;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
@@ -13,6 +13,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+
+import io.github.mssjsg.mylittleworld.game.GameScreen;
+import io.github.mssjsg.mylittleworld.Screen;
+import io.github.mssjsg.mylittleworld.ScreenManager;
 
 /**
  * Created by sing on 12/31/16.

@@ -1,4 +1,7 @@
-package io.github.mssjsg.mylittleworld.screen;
+package io.github.mssjsg.mylittleworld;
+
+import io.github.mssjsg.mylittleworld.game.GameScreen;
+import io.github.mssjsg.mylittleworld.main.MenuScreen;
 
 /**
  * Created by sing on 1/1/17.

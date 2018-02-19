@@ -1,33 +1,55 @@
-package io.github.mssjsg.mylittleworld.game;
+package io.github.mssjsg.mylittleworld.game.world;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import java.util.Random;
 
+import io.github.mssjsg.mylittleworld.Screen;
+import io.github.mssjsg.mylittleworld.ScreenManager;
+import io.github.mssjsg.mylittleworld.game.GameEntityFactory;
+import io.github.mssjsg.mylittleworld.game.GameKeys;
+import io.github.mssjsg.mylittleworld.game.GameModel;
+import io.github.mssjsg.mylittleworld.game.GameScreen;
+import io.github.mssjsg.mylittleworld.game.GameState;
+import io.github.mssjsg.mylittleworld.game.InGameScreen;
+import io.github.mssjsg.mylittleworld.game.InGameScreenManager;
+import io.github.mssjsg.mylittleworld.game.Stages;
+import io.github.mssjsg.mylittleworld.game.States;
+import io.github.mssjsg.mylittleworld.game.Tags;
 import io.github.mssjsg.mylittleworld.game.component.Position;
 import io.github.mssjsg.mylittleworld.game.data.Entity;
 import io.github.mssjsg.mylittleworld.game.data.StageInfo;
 import io.github.mssjsg.mylittleworld.game.system.Box2dSystem;
 import io.github.mssjsg.mylittleworld.game.system.RenderShapeSystem;
 import io.github.mssjsg.mylittleworld.game.system.ResourcesSystem;
-import io.github.mssjsg.mylittleworld.game.system.Stages;
 import io.github.mssjsg.mylittleworld.game.system.TiledMapSystem;
 
 /**
  * Created by sing on 1/1/17.
  */
 
-public class GameController implements Box2dSystem.OnRacketHitBallListener, ResourcesSystem.ResourcesListener {
+public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHitBallListener, ResourcesSystem.ResourcesListener {
 
     private static final int CAMERRA_WIDTH = 400;
 
@@ -58,15 +80,25 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
 
     private float mSpeed = 5f;
 
-    private GameView mGameView;
-
     private float accumulator = 0;
 
     private Random mRandom = new Random();
 
-    public GameController(GameView gameView) {
+    private static final String STYLE_DEFAULT = "default";
+    private static final String STYLE_GAMEOVER = "gameOver";
+    private static final int UI_WIDTH = 500;
 
-        mGameView = gameView;
+    private Stage mStage;
+    private Skin skin;
+
+    private GameInputProcessor mGameInputProcessor;
+
+    private Label mScore;
+    private Label mStatus;
+    private Label mBtnRetry;
+
+    public WorldScreen(InGameScreenManager screenManager) {
+        super(screenManager);
 
         mModel = new GameModel();
 
@@ -97,6 +129,13 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
         //init stage
         mStageInfo = Stages.createStage(0);
         startGame(mStageInfo);
+
+
+        mStage = new Stage(new ExtendViewport(UI_WIDTH,
+                (int)((float)Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth() * UI_WIDTH)));
+        mGameInputProcessor = new GameInputProcessor();
+
+        buildStage();
     }
 
     private void startGame(StageInfo stageInfo) {
@@ -191,10 +230,18 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
         mGameState.state = States.PAUSED;
     }
 
-    public void resize(int width, int height) {
-        updateCameras(width, height);
+    @Override
+    public InputProcessor getInputProcessor() {
+        return mGameInputProcessor;
     }
 
+    @Override
+    public void resize(int width, int height) {
+        updateCameras(width, height);
+        mStage.getViewport().update(width, height, true);
+    }
+
+    @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -212,6 +259,9 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
             mTiledMapSystem.update(delta);
             mRenderShapeSystem.update(delta);
         }
+
+        mStage.act(delta);
+        mStage.draw();
     }
 
     private void updateState(float velocityX, float velocityY) {
@@ -232,7 +282,7 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
 
     private void gameOver() {
         mGameState.state = States.GAME_OVER;
-        mGameView.showGameOver(mGameState.score);
+        showGameOver(mGameState.score);
     }
 
     public void update(float delta) {
@@ -273,10 +323,12 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
         }
     }
 
+    @Override
     public void pause() {
         pauseGame();
     }
 
+    @Override
     public void resume() {
         resumeGame();
     }
@@ -305,7 +357,7 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
     @Override
     public void onRacketHitBall(int tag) {
         mGameState.score++;
-        mGameView.showScore(mGameState.score);
+        showScore(mGameState.score);
     }
 
     private void setEntityPosition(Entity entity, float x, float y) {
@@ -346,9 +398,139 @@ public class GameController implements Box2dSystem.OnRacketHitBallListener, Reso
         setupStage(mStageInfo);
     }
 
-    public interface GameView {
-        void showScore(int score);
 
-        void showGameOver(int score);
+    private void buildStage() {
+        Table layerControls = buildControlsLayer();
+
+        mStage.clear();
+        Stack stack = new Stack();
+        mStage.addActor(stack);
+        stack.setSize(mStage.getWidth(), mStage.getHeight());
+        stack.add(layerControls);
+    }
+
+    private Table buildControlsLayer() {
+        skin = new Skin(Gdx.files.internal("styles/uiskin.json"), new TextureAtlas(Gdx.files.internal("styles/uiskin.pack.atlas")));
+
+        Table table = new Table();
+        table.top();
+
+        mScore = new Label("0", skin, STYLE_DEFAULT);
+        mScore.setFontScale(2);
+        table.add(mScore).align(Align.top).fillX().padTop(20);
+
+        mStatus = new Label("Game Over", skin, STYLE_GAMEOVER);
+        mStatus.setFontScale(2);
+        mStatus.setVisible(false);
+        table.row();
+        table.add(mStatus).fillX().padTop(130);
+
+        mBtnRetry = new Label("Retry", skin, STYLE_GAMEOVER);
+        mBtnRetry.setFontScale(1.5f);
+        mBtnRetry.setVisible(false);
+        table.row();
+        table.add(mBtnRetry).align(Align.center).padTop(80);
+
+        mBtnRetry.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                resetGame();
+            }
+        });
+
+        return table;
+    }
+
+    public void showScore(int score) {
+        mScore.setText(String.valueOf(score));
+    }
+
+    public void showGameOver(int score) {
+        mScore.setText(String.valueOf(score));
+        mStatus.setText("Game Over");
+        mStatus.setVisible(true);
+        mBtnRetry.setVisible(true);
+    }
+
+    private void resetGame() {
+        mStatus.setVisible(false);
+        mBtnRetry.setVisible(false);
+        restartStage();
+    }
+
+    private class GameInputProcessor implements InputProcessor {
+
+        @Override
+        public boolean keyDown(int keycode) {
+            switch (keycode) {
+                case Input.Keys.UP:
+                    press(GameKeys.KEY_UP);
+                    return true;
+                case Input.Keys.DOWN:
+                    press(GameKeys.KEY_DOWN);
+                    return true;
+                case Input.Keys.LEFT:
+                    press(GameKeys.KEY_LEFT);
+                    return true;
+                case Input.Keys.RIGHT:
+                    press(GameKeys.KEY_RIGHT);
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean keyUp(int keycode) {
+            switch (keycode) {
+                case Input.Keys.UP:
+                    unpress(GameKeys.KEY_UP);
+                    return true;
+                case Input.Keys.DOWN:
+                    unpress(GameKeys.KEY_DOWN);
+                    return true;
+                case Input.Keys.LEFT:
+                    unpress(GameKeys.KEY_LEFT);
+                    return true;
+                case Input.Keys.RIGHT:
+                    unpress(GameKeys.KEY_RIGHT);
+                    return true;
+                case Input.Keys.BACK:
+                case Input.Keys.BACKSPACE:
+                    mScreenManager.goBack();
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean keyTyped(char character) {
+            return false;
+        }
+
+        @Override
+        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            return mStage.touchDown(screenX, screenY, pointer, button);
+        }
+
+        @Override
+        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+            return mStage.touchUp(screenX, screenY, pointer, button);
+        }
+
+        @Override
+        public boolean touchDragged(int screenX, int screenY, int pointer) {
+            return mStage.touchDragged(screenX, screenY, pointer);
+        }
+
+        @Override
+        public boolean mouseMoved(int screenX, int screenY) {
+            return mStage.mouseMoved(screenX, screenY);
+        }
+
+        @Override
+        public boolean scrolled(int amount) {
+            return mStage.scrolled(amount);
+        }
     }
 }

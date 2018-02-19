@@ -3,10 +3,6 @@ package io.github.mssjsg.mylittleworld;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 
-import io.github.mssjsg.mylittleworld.screen.Screen;
-import io.github.mssjsg.mylittleworld.screen.ScreenManager;
-import io.github.mssjsg.mylittleworld.screen.Screens;
-
 /**
  * Created by sing on 12/31/16.
  */
@@ -66,6 +62,11 @@ public class ApplicationController extends ApplicationAdapter {
             }
             mScreen = screen;
             Gdx.input.setInputProcessor(mScreen.getInputProcessor());
+        }
+
+        @Override
+        public boolean goBack() {
+            return mScreen.goBack();
         }
     }
 }
