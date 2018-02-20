@@ -23,14 +23,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
-import java.util.Random;
-
-import io.github.mssjsg.mylittleworld.Screen;
-import io.github.mssjsg.mylittleworld.ScreenManager;
 import io.github.mssjsg.mylittleworld.game.GameEntityFactory;
 import io.github.mssjsg.mylittleworld.game.GameKeys;
 import io.github.mssjsg.mylittleworld.game.GameModel;
-import io.github.mssjsg.mylittleworld.game.GameScreen;
 import io.github.mssjsg.mylittleworld.game.GameState;
 import io.github.mssjsg.mylittleworld.game.InGameScreen;
 import io.github.mssjsg.mylittleworld.game.InGameScreenManager;
@@ -40,10 +35,7 @@ import io.github.mssjsg.mylittleworld.game.Tags;
 import io.github.mssjsg.mylittleworld.game.component.Position;
 import io.github.mssjsg.mylittleworld.game.data.Entity;
 import io.github.mssjsg.mylittleworld.game.data.StageInfo;
-import io.github.mssjsg.mylittleworld.game.system.Box2dSystem;
-import io.github.mssjsg.mylittleworld.game.system.RenderShapeSystem;
-import io.github.mssjsg.mylittleworld.game.system.ResourcesSystem;
-import io.github.mssjsg.mylittleworld.game.system.TiledMapSystem;
+import io.github.mssjsg.mylittleworld.game.ResourcesSystem;
 
 /**
  * Created by sing on 1/1/17.
@@ -73,6 +65,7 @@ public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHit
     private Box2dSystem mBox2dSystem; //physics
     private TiledMapSystem mTiledMapSystem; //map
     private ResourcesSystem mResourcesSystem;
+    private WorldPanelSystem mWorldPanelSystem;
 
     private GameEntityFactory mGameEntityFactory;
 
@@ -81,21 +74,6 @@ public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHit
     private float mSpeed = 5f;
 
     private float accumulator = 0;
-
-    private Random mRandom = new Random();
-
-    private static final String STYLE_DEFAULT = "default";
-    private static final String STYLE_GAMEOVER = "gameOver";
-    private static final int UI_WIDTH = 500;
-
-    private Stage mStage;
-    private Skin skin;
-
-    private GameInputProcessor mGameInputProcessor;
-
-    private Label mScore;
-    private Label mStatus;
-    private Label mBtnRetry;
 
     public WorldScreen(InGameScreenManager screenManager) {
         super(screenManager);
@@ -120,6 +98,8 @@ public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHit
         mTiledMapSystem.setCamera(mCamera);
         mBox2dSystem = new Box2dSystem(mBoxCamera, this);
         mResourcesSystem = new ResourcesSystem();
+        mWorldPanelSystem = new WorldPanelSystem();
+
         mResourcesSystem.addResourcesListener(this);
 
         mKeysPressing = 0;
@@ -129,13 +109,6 @@ public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHit
         //init stage
         mStageInfo = Stages.createStage(0);
         startGame(mStageInfo);
-
-
-        mStage = new Stage(new ExtendViewport(UI_WIDTH,
-                (int)((float)Gdx.graphics.getHeight() / (float) Gdx.graphics.getWidth() * UI_WIDTH)));
-        mGameInputProcessor = new GameInputProcessor();
-
-        buildStage();
     }
 
     private void startGame(StageInfo stageInfo) {
@@ -231,14 +204,8 @@ public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHit
     }
 
     @Override
-    public InputProcessor getInputProcessor() {
-        return mGameInputProcessor;
-    }
-
-    @Override
     public void resize(int width, int height) {
         updateCameras(width, height);
-        mStage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -251,7 +218,6 @@ public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHit
 //        mSpriteBatch.draw(mLogo, (mStageInfo.stageWidth - mLogo.getWidth()) / 2, (mStageInfo.stageHeight - mLogo.getHeight()) / 2);
 //        mSpriteBatch.end();
 
-
         if (mResourcesSystem.getState() == ResourcesSystem.LOADING) {
             mResourcesSystem.update(delta);
         } else if (mResourcesSystem.getState() == ResourcesSystem.LOADED) {
@@ -259,9 +225,6 @@ public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHit
             mTiledMapSystem.update(delta);
             mRenderShapeSystem.update(delta);
         }
-
-        mStage.act(delta);
-        mStage.draw();
     }
 
     private void updateState(float velocityX, float velocityY) {
@@ -282,7 +245,6 @@ public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHit
 
     private void gameOver() {
         mGameState.state = States.GAME_OVER;
-        showGameOver(mGameState.score);
     }
 
     public void update(float delta) {
@@ -357,7 +319,6 @@ public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHit
     @Override
     public void onRacketHitBall(int tag) {
         mGameState.score++;
-        showScore(mGameState.score);
     }
 
     private void setEntityPosition(Entity entity, float x, float y) {
@@ -398,139 +359,50 @@ public class WorldScreen extends InGameScreen implements Box2dSystem.OnRacketHit
         setupStage(mStageInfo);
     }
 
-
-    private void buildStage() {
-        Table layerControls = buildControlsLayer();
-
-        mStage.clear();
-        Stack stack = new Stack();
-        mStage.addActor(stack);
-        stack.setSize(mStage.getWidth(), mStage.getHeight());
-        stack.add(layerControls);
+    @Override
+    public boolean keyDown(int keycode) {
+        switch (keycode) {
+            case Input.Keys.UP:
+                press(GameKeys.KEY_UP);
+                return true;
+            case Input.Keys.DOWN:
+                press(GameKeys.KEY_DOWN);
+                return true;
+            case Input.Keys.LEFT:
+                press(GameKeys.KEY_LEFT);
+                return true;
+            case Input.Keys.RIGHT:
+                press(GameKeys.KEY_RIGHT);
+                return true;
+        }
+        return mWorldPanelSystem.getInputProcessor().keyDown(keycode);
     }
 
-    private Table buildControlsLayer() {
-        skin = new Skin(Gdx.files.internal("styles/uiskin.json"), new TextureAtlas(Gdx.files.internal("styles/uiskin.pack.atlas")));
-
-        Table table = new Table();
-        table.top();
-
-        mScore = new Label("0", skin, STYLE_DEFAULT);
-        mScore.setFontScale(2);
-        table.add(mScore).align(Align.top).fillX().padTop(20);
-
-        mStatus = new Label("Game Over", skin, STYLE_GAMEOVER);
-        mStatus.setFontScale(2);
-        mStatus.setVisible(false);
-        table.row();
-        table.add(mStatus).fillX().padTop(130);
-
-        mBtnRetry = new Label("Retry", skin, STYLE_GAMEOVER);
-        mBtnRetry.setFontScale(1.5f);
-        mBtnRetry.setVisible(false);
-        table.row();
-        table.add(mBtnRetry).align(Align.center).padTop(80);
-
-        mBtnRetry.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                resetGame();
-            }
-        });
-
-        return table;
+    @Override
+    public boolean keyUp(int keycode) {
+        switch (keycode) {
+            case Input.Keys.UP:
+                unpress(GameKeys.KEY_UP);
+                return true;
+            case Input.Keys.DOWN:
+                unpress(GameKeys.KEY_DOWN);
+                return true;
+            case Input.Keys.LEFT:
+                unpress(GameKeys.KEY_LEFT);
+                return true;
+            case Input.Keys.RIGHT:
+                unpress(GameKeys.KEY_RIGHT);
+                return true;
+            case Input.Keys.BACK:
+            case Input.Keys.BACKSPACE:
+                mScreenManager.goBack();
+                return true;
+        }
+        return mWorldPanelSystem.getInputProcessor().keyUp(keycode);
     }
 
-    public void showScore(int score) {
-        mScore.setText(String.valueOf(score));
-    }
-
-    public void showGameOver(int score) {
-        mScore.setText(String.valueOf(score));
-        mStatus.setText("Game Over");
-        mStatus.setVisible(true);
-        mBtnRetry.setVisible(true);
-    }
-
-    private void resetGame() {
-        mStatus.setVisible(false);
-        mBtnRetry.setVisible(false);
-        restartStage();
-    }
-
-    private class GameInputProcessor implements InputProcessor {
-
-        @Override
-        public boolean keyDown(int keycode) {
-            switch (keycode) {
-                case Input.Keys.UP:
-                    press(GameKeys.KEY_UP);
-                    return true;
-                case Input.Keys.DOWN:
-                    press(GameKeys.KEY_DOWN);
-                    return true;
-                case Input.Keys.LEFT:
-                    press(GameKeys.KEY_LEFT);
-                    return true;
-                case Input.Keys.RIGHT:
-                    press(GameKeys.KEY_RIGHT);
-                    return true;
-            }
-            return false;
-        }
-
-        @Override
-        public boolean keyUp(int keycode) {
-            switch (keycode) {
-                case Input.Keys.UP:
-                    unpress(GameKeys.KEY_UP);
-                    return true;
-                case Input.Keys.DOWN:
-                    unpress(GameKeys.KEY_DOWN);
-                    return true;
-                case Input.Keys.LEFT:
-                    unpress(GameKeys.KEY_LEFT);
-                    return true;
-                case Input.Keys.RIGHT:
-                    unpress(GameKeys.KEY_RIGHT);
-                    return true;
-                case Input.Keys.BACK:
-                case Input.Keys.BACKSPACE:
-                    mScreenManager.goBack();
-                    return true;
-            }
-            return false;
-        }
-
-        @Override
-        public boolean keyTyped(char character) {
-            return false;
-        }
-
-        @Override
-        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-            return mStage.touchDown(screenX, screenY, pointer, button);
-        }
-
-        @Override
-        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            return mStage.touchUp(screenX, screenY, pointer, button);
-        }
-
-        @Override
-        public boolean touchDragged(int screenX, int screenY, int pointer) {
-            return mStage.touchDragged(screenX, screenY, pointer);
-        }
-
-        @Override
-        public boolean mouseMoved(int screenX, int screenY) {
-            return mStage.mouseMoved(screenX, screenY);
-        }
-
-        @Override
-        public boolean scrolled(int amount) {
-            return mStage.scrolled(amount);
-        }
+    @Override
+    public InputProcessor getInputProcessor() {
+        return mWorldPanelSystem.getInputProcessor();
     }
 }

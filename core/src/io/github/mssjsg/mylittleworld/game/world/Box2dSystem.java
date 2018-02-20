@@ -1,4 +1,4 @@
-package io.github.mssjsg.mylittleworld.game.system;
+package io.github.mssjsg.mylittleworld.game.world;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
@@ -19,6 +19,7 @@ import io.github.mssjsg.mylittleworld.game.data.Entity;
 import io.github.mssjsg.mylittleworld.game.component.HitBody;
 import io.github.mssjsg.mylittleworld.game.component.Position;
 import io.github.mssjsg.mylittleworld.game.shape.BodyShape;
+import io.github.mssjsg.mylittleworld.game.BaseSystem;
 
 /**
  * Created by sing on 1/7/17.

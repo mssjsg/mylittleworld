@@ -3,7 +3,7 @@ package io.github.mssjsg.mylittleworld.game.shape;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 
-import static io.github.mssjsg.mylittleworld.game.system.Box2dSystem.PX_TO_BOX;
+import static io.github.mssjsg.mylittleworld.game.world.Box2dSystem.PX_TO_BOX;
 
 /**
  * Created by Sing on 11/2/2018.

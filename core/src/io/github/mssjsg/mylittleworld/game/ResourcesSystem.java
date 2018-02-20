@@ -1,4 +1,4 @@
-package io.github.mssjsg.mylittleworld.game.system;
+package io.github.mssjsg.mylittleworld.game;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;

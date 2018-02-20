@@ -39,11 +39,6 @@ public class GameScreen extends Screen {
     }
 
     @Override
-    public InputProcessor getInputProcessor() {
-        return mScreen.getInputProcessor();
-    }
-
-    @Override
     public void render(float delta) {
         super.render(delta);
         mScreen.render(delta);
@@ -75,6 +70,11 @@ public class GameScreen extends Screen {
 
     private void back() {
         setScreen(Screens.createMenuScreen(mScreenManager));
+    }
+
+    @Override
+    public InputProcessor getInputProcessor() {
+        return mScreen;
     }
 
     private class GameScreenManager extends InGameScreenManager {

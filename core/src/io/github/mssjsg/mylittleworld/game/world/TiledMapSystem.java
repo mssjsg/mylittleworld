@@ -1,8 +1,10 @@
-package io.github.mssjsg.mylittleworld.game.system;
+package io.github.mssjsg.mylittleworld.game.world;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+
+import io.github.mssjsg.mylittleworld.game.BaseSystem;
 
 /**
  * Created by Sing on 11/2/2018.

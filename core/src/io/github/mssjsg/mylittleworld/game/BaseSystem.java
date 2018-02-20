@@ -1,4 +1,4 @@
-package io.github.mssjsg.mylittleworld.game.system;
+package io.github.mssjsg.mylittleworld.game;
 
 /**
  * Created by sing on 1/7/17.

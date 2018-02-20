@@ -1,4 +1,4 @@
-package io.github.mssjsg.mylittleworld.game.system;
+package io.github.mssjsg.mylittleworld.game;
 
 import com.badlogic.gdx.utils.Array;
 

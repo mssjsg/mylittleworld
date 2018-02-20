@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 
-import static io.github.mssjsg.mylittleworld.game.system.Box2dSystem.PX_TO_BOX;
+import static io.github.mssjsg.mylittleworld.game.world.Box2dSystem.PX_TO_BOX;
 
 /**
  * Created by sing on 1/3/17.
